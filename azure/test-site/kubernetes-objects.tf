@@ -42,7 +42,7 @@ resource "kubernetes_ingress" "test_reifnir_com" {
     name = "aspnetapp"
     annotations = {
       "kubernetes.io/ingress.class" : "azure/application-gateway"
-      "appgw.ingress.kubernetes.io/backend-hostname" : "test.reifnir.com"
+      "appgw.ingress.kubernetes.io/backend-hostname" : "iac-test-site.reifnir.com"
     }
   }
 
