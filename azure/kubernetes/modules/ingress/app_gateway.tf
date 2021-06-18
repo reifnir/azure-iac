@@ -83,4 +83,20 @@ resource "azurerm_application_gateway" "network" {
   }
 
   tags = var.tags
+
+  # https://stackoverflow.com/questions/63691139/terraform-removes-configurations-resources-created-by-the-application-gateway-in
+  lifecycle {
+    ignore_changes = [
+      backend_address_pool,
+      backend_http_settings,
+      frontend_port,
+      http_listener,
+      probe,
+      redirect_configuration,
+      request_routing_rule,
+      ssl_certificate,
+      tags,
+      url_path_map,
+    ]
+  }
 }
