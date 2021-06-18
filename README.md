@@ -28,6 +28,7 @@ Infrastructure-as-code repo
 
 ## TODO
 * FIX: when re-applying the TF script, it appears that rules related to AGIC are removed
+* Setup TLS and auto-redirect all traffic from 80 -> 443
 * setup automatic let's encrypt TLS cert updating
   * https://intelequia.com/blog/post/1012/automating-azure-application-gateway-ssl-certificate-renewals-with-let-s-encrypt-and-azure-automation
 * wire up ACI

@@ -2,6 +2,7 @@ locals {
   app_gateway_name               = "ag-${var.name}"
   backend_address_pool_name      = "${local.app_gateway_name}-beap"
   frontend_port_name             = "${local.app_gateway_name}-feport"
+  # TODO: add 80/http redirect to 443/https and only care about the https frontend port once TLS is taken care of
   frontend_ip_configuration_name = "${local.app_gateway_name}-feip"
   http_setting_name              = "${local.app_gateway_name}-be-htst"
   listener_name                  = "${local.app_gateway_name}-httplstn"
