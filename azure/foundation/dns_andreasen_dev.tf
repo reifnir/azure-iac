@@ -13,7 +13,7 @@ resource "gitlab_group_variable" "AZURE_DNS_ZONE_ID_ANDREASEN_DEV" {
   masked        = false
 }
 
-resource "azurerm_dns_txt_record" "protonmail_verification" {
+resource "azurerm_dns_txt_record" "protonmail_andreasen_dev_verification" {
   name                = "@"
   zone_name           = azurerm_dns_zone.andreasen_dev.name
   resource_group_name = azurerm_resource_group.dns.name
