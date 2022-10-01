@@ -28,8 +28,8 @@ variables:
       - ${TF_ROOT}/plan.cache
     reports:
       terraform: ${TF_ROOT}/plan.json
-  dependencies:
-    - find latest aks k8s version
+  # dependencies:
+  #   - find latest aks k8s version
 
 .apply:
   script:
@@ -75,8 +75,8 @@ apply foundation:
     TF_ROOT: ${CI_PROJECT_DIR}/azure/foundation
     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
-  dependencies:
-    - plan foundation
+  # dependencies:
+  #   - plan foundation
 
 # plan kubernetes:
 #   extends: .plan
