@@ -25,3 +25,21 @@ resource "azurerm_dns_txt_record" "protonmail_decomposingsoftware_com_verificati
 
   tags = local.tags
 }
+
+resource "azurerm_dns_mx_record" "protonmail_decomposingsoftware_com" {
+  zone_name           = azurerm_dns_zone.decomposingsoftware_com.name
+  resource_group_name = azurerm_resource_group.dns.name
+  ttl                 = 60
+
+  record {
+    preference = 10
+    exchange   = "mail.protonmail.ch"
+  }
+
+  record {
+    preference = 20
+    exchange   = "mailsec.protonmail.ch"
+  }
+
+  tags = local.tags
+}
