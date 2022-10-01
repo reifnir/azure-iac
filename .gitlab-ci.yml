@@ -2,22 +2,15 @@ stages:
   - preparation
   - plan foundation
   - apply foundation
-  # - plan kubernetes
-  # - apply kubernetes
-  # - aad pod identity setup
-  # - install app gateway ingress controller
-  # - deploy test site
-  # - apocalypse
 
 image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
 
 variables:
   TF_PASSWORD: ${GITLAB_TOKEN}
-  RUNTIME_VAR_PATH: ${CI_PROJECT_DIR}/.vars/.env
 
 .plan:
   script:
-    - source "$RUNTIME_VAR_PATH"
+    # TODO: switch to hashicorp/terraform image
     - cd ${TF_ROOT}
     - gitlab-terraform init
     - gitlab-terraform plan
@@ -28,8 +21,6 @@ variables:
       - ${TF_ROOT}/plan.cache
     reports:
       terraform: ${TF_ROOT}/plan.json
-  # dependencies:
-  #   - find latest aks k8s version
 
 .apply:
   script:
@@ -40,23 +31,6 @@ variables:
     name: plan
   only:
     - main
-
-# find latest aks k8s version:
-#   stage: preparation
-#   image: mcr.microsoft.com/azure-cli:latest
-#   script:
-#     - mkdir -p ${CI_PROJECT_DIR}/.vars
-#     - echo "Logging into Azure..."
-#     - az login --service-principal -u "$ARM_CLIENT_ID" -p "$ARM_CLIENT_SECRET" --tenant "$ARM_TENANT_ID"
-#     - echo "Getting current version of AKS in $TF_VAR_location ..."
-#     - TF_VAR_kubernetes_version="$(az aks get-versions --location "$TF_VAR_location" | jq '.orchestrators | reverse | .[0].orchestratorVersion' -r)"
-#     - echo "TF_VAR_kubernetes_version=$TF_VAR_kubernetes_version"
-#     - echo "Saving value of TF_VAR_kubernetes_version to $RUNTIME_VAR_PATH..."
-#     - echo "export TF_VAR_kubernetes_version=\"$TF_VAR_kubernetes_version\"" > "$RUNTIME_VAR_PATH"
-#   artifacts:
-#     name: ".env"
-#     paths:
-#       - "$RUNTIME_VAR_PATH"
 
 plan foundation:
   extends: .plan
@@ -75,120 +49,3 @@ apply foundation:
     TF_ROOT: ${CI_PROJECT_DIR}/azure/foundation
     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
-  # dependencies:
-  #   - plan foundation
-
-# plan kubernetes:
-#   extends: .plan
-#   stage: plan kubernetes
-#   resource_group: kubernetes
-#   variables:
-#     TF_ROOT: ${CI_PROJECT_DIR}/azure/kubernetes
-#     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes
-#     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_ENTERPRISE_1
-#     TF_VAR_foundation_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-
-# apply kubernetes:
-#   extends: .apply
-#   stage: apply kubernetes
-#   resource_group: kubernetes
-#   when: manual
-#   allow_failure: false
-#   variables:
-#     TF_ROOT: ${CI_PROJECT_DIR}/azure/kubernetes
-#     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes
-#     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_ENTERPRISE_1
-#     TF_VAR_foundation_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-#   dependencies:
-#     - plan kubernetes
-    
-
-# aad pod identity setup:
-#   image: mcr.microsoft.com/azure-cli:latest
-#   stage: aad pod identity setup
-#   resource_group: post kubernetes setup
-#   script:
-#     - set -x
-#     - echo "Installing kubectl..."
-#     - az aks install-cli
-#     - ${CI_PROJECT_DIR}/scripts/install-aad-pod-identity.sh
-
-# install app gateway ingress controller:
-#   image: mcr.microsoft.com/azure-cli:latest
-#   stage: install app gateway ingress controller
-#   resource_group: post kubernetes setup
-#   variables:
-#     TF_ROOT: ${CI_PROJECT_DIR}/azure/kubernetes
-#     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes
-#     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_ENTERPRISE_1
-#     TF_VAR_foundation_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-#   script:
-#     - apk add curl unzip jq
-#     - echo "Installing kubectl..."
-#     - az aks install-cli
-#     - echo "Verify able to communicate with cluster..."
-#     - export KUBECONFIG="$KUBE_CONFIG_ADMIN_PATH"
-#     - kubectl get nodes
-#     - cd ${TF_ROOT}
-#     - ${CI_PROJECT_DIR}/scripts/install-alpine-terraform.sh
-#     - ${CI_PROJECT_DIR}/scripts/setup-terraform-output.sh
-#     - export SUBSCRIPTION_ID="$(terraform output -json | jq '.app_gateway_ingress_controller_info.value.subscriptionId' -r)"
-#     - export RESOURCE_GROUP="$(terraform output -json | jq '.app_gateway_ingress_controller_info.value.resource_group' -r)"
-#     - export APP_GATEWAY_NAME="$(terraform output -json | jq '.app_gateway_ingress_controller_info.value.app_gateway_name' -r)"
-#     - export IDENTITY_RESOURCE_ID="$(terraform output -json | jq '.app_gateway_ingress_controller_info.value.identity_resource_id' -r)"
-#     - export IDENTITY_CLIENT_ID="$(terraform output -json | jq '.app_gateway_ingress_controller_info.value.identity_client_id' -r)"
-#     - ${CI_PROJECT_DIR}/scripts/install-alpine-helm-3.sh
-#     - ${CI_PROJECT_DIR}/scripts/install-helm-agic.sh
-
-# deploy test site:
-#   stage: deploy test site
-#   resource_group: kubernetes
-#   variables:
-#     TF_ROOT: ${CI_PROJECT_DIR}/azure/test-site
-#     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-test-site
-#     TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
-#     TF_VAR_foundation_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-#     TF_VAR_kubernetes_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes
-#   script:
-#     - export TF_VAR_kube_config_path="$KUBE_CONFIG_ADMIN_PATH"
-#     - export | grep TF_
-#     - cd ${TF_ROOT}
-#     - gitlab-terraform init
-#     - gitlab-terraform plan
-#     - gitlab-terraform apply
-#   only:
-#     - main
-
-# tear down the cluster:
-#   stage: apocalypse
-#   resource_group: kubernetes
-#   when: manual
-#   variables:
-#     TF_VAR_foundation_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-#     TF_VAR_kubernetes_state_address: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes
-#   script:
-#     # Don't do this as a YAML variable or the variable gets filled with the contents, not a path to a file containing them
-#     - apk add bash curl
-#     - source "$RUNTIME_VAR_PATH"
-#     - export TF_VAR_kube_config_path="$KUBE_CONFIG_ADMIN_PATH"
-#     - export TF_ROOT="${CI_PROJECT_DIR}/azure/test-site"
-#     - export TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-test-site"
-#     - export TF_HTTP_ADDRESS=$TF_ADDRESS
-#     - export TF_HTTP_LOCK_ADDRESS=$TF_HTTP_ADDRESS/lock
-#     - export TF_HTTP_UNLOCK_ADDRESS=$TF_HTTP_ADDRESS/lock
-#     - export TF_VAR_azure_subscription="$AZURE_SUBSCRIPTION_PRO"
-#     - export ARM_SUBSCRIPTION_ID="$TF_VAR_azure_subscription"
-#     - cd ${TF_ROOT}
-#     - echo "Destroying test-site state..."
-#     - (time gitlab-terraform destroy)
-#     - echo "Restoring TF_HTTP env variables..."
-#     - unset TF_HTTP_ADDRESS
-#     - unset TF_HTTP_LOCK_ADDRESS
-#     - unset TF_HTTP_UNLOCK_ADDRESS
-#     - export TF_ROOT="${CI_PROJECT_DIR}/azure/kubernetes"
-#     - export TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-kubernetes"
-#     - export TF_VAR_azure_subscription="$AZURE_SUBSCRIPTION_ENTERPRISE_1"
-#     - export ARM_SUBSCRIPTION_ID="$TF_VAR_azure_subscription"
-#     - cd ${TF_ROOT}
-#     - echo "Destroying kubernetes state..."
-#     - (time gitlab-terraform destroy)
