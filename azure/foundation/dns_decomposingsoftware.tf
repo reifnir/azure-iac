@@ -23,6 +23,10 @@ resource "azurerm_dns_txt_record" "protonmail_decomposingsoftware_com_verificati
     value = "protonmail-verification=e0ca8dd243aa0da17e57aa3d2737bdef4e1a34ef"
   }
 
+  record {
+    value = "v=spf1 include:_spf.protonmail.ch mx ~all"
+  }
+
   tags = local.tags
 }
 
@@ -39,6 +43,43 @@ resource "azurerm_dns_mx_record" "protonmail_decomposingsoftware_com" {
   record {
     preference = 20
     exchange   = "mailsec.protonmail.ch"
+  }
+
+  tags = local.tags
+}
+
+resource "azurerm_dns_cname_record" "protonmail_decomposingsoftware_com_dkim_1" {
+  name                = "protonmail._domainkey"
+  zone_name           = azurerm_dns_zone.decomposingsoftware_com.name
+  resource_group_name = azurerm_resource_group.dns.name
+  ttl                 = 300
+  record              = "protonmail.domainkey.dtdvjob7ave6m5sjfbqfbxop6m2tprzif5z57dysz3nuzlhlkcceq.domains.proton.ch."
+}
+
+resource "azurerm_dns_cname_record" "protonmail_decomposingsoftware_com_dkim_2" {
+  name                = "protonmail2._domainkey"
+  zone_name           = azurerm_dns_zone.decomposingsoftware_com.name
+  resource_group_name = azurerm_resource_group.dns.name
+  ttl                 = 300
+  record              = "protonmail2.domainkey.dtdvjob7ave6m5sjfbqfbxop6m2tprzif5z57dysz3nuzlhlkcceq.domains.proton.ch."
+}
+
+resource "azurerm_dns_cname_record" "protonmail_decomposingsoftware_com_dkim_3" {
+  name                = "protonmail3._domainkey"
+  zone_name           = azurerm_dns_zone.decomposingsoftware_com.name
+  resource_group_name = azurerm_resource_group.dns.name
+  ttl                 = 300
+  record              = "protonmail3.domainkey.dtdvjob7ave6m5sjfbqfbxop6m2tprzif5z57dysz3nuzlhlkcceq.domains.proton.ch."
+}
+
+resource "azurerm_dns_txt_record" "protonmail_decomposingsoftware_com_dmarc" {
+  name                = "_dmarc"
+  zone_name           = azurerm_dns_zone.decomposingsoftware_com.name
+  resource_group_name = azurerm_resource_group.dns.name
+  ttl                 = 300
+
+  record {
+    value = "v=DMARC1; p=none"
   }
 
   tags = local.tags
