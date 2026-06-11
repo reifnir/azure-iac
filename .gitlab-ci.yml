@@ -10,21 +10,35 @@ variables:
   TERRAFORM_DIR: ./terraform
   TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
 
+
+# checkov:
+#   stage: plan
+#   image: bridgecrew/checkov:latest
+#   script:
+#     - checkov -d ${TERRAFORM_DIR} --quiet --output json > checkov_report.json
+#   artifacts:
+#     name: checkov_report
+#     paths:
+#       - checkov_report.json
+#     reports:
+#       checkov: checkov_report.json
+
 plan:
   stage: plan
   resource_group: terraform
+  script:
+    - terraform -chdir=${TERRAFORM_DIR} init
+    - terraform -chdir=${TERRAFORM_DIR} plan -out=planfile
   artifacts:
     name: plan
     paths:
-      - ${TF_ROOT}/plan.cache
-    reports:
-      terraform: ${TF_ROOT}/plan.json
+      - ${TERRAFORM_DIR}/planfile
 
 apply:
   stage: apply
   resource_group: terraform
   script:
-    - terraform -chdir=${TF_ROOT} init
-    - terraform -chdir=${TF_ROOT} apply plan.cache
+    - terraform -chdir=${TERRAFORM_DIR} init
+    - terraform -chdir=${TERRAFORM_DIR} apply planfile
   only:
     - main
