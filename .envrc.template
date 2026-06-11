@@ -1,60 +1,20 @@
-# =============================================
-# Base
-# =============================================
-# SECRETS
-# =============================================
 export GITLAB_TOKEN=""
 export SECRET_GITLAB_USERNAME=""
 
 # Stored at group: all-projects
-export AZURE_SUBSCRIPTION_PRO=""
-export AZURE_SUBSCRIPTION_ENTERPRISE_1=""
-export AZURE_SUBSCRIPTION_ENTERPRISE_2=""
+AZURE_SUBSCRIPTION_PRO=""
+AZURE_SUBSCRIPTION_ENTERPRISE_2=""
 
-export ARM_TENANT_ID=""
 export ARM_CLIENT_ID=""
 export ARM_CLIENT_SECRET=""
+export ARM_TENANT_ID=""
+export ARM_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_PRO}"
 # =============================================
 
 # Automatically furnished by GitLab
 export CI_API_V4_URL="https://gitlab.com/api/v4"
 export CI_PROJECT_ID="21573466"
-export TF_HTTP_USERNAME="$SECRET_GITLAB_USERNAME"
-export TF_HTTP_LOCK_METHOD=POST
-export TF_HTTP_UNLOCK_METHOD=DELETE
-export TF_HTTP_PASSWORD="$GITLAB_TOKEN"
-export TF_HTTP_RETRY_WAIT_MIN=5
 
 # Stored at project level
 export TF_VAR_gitlab_group_id="9705542"
 export TF_VAR_location="eastus"
-
-# Getting latest aks version 
-export TF_VAR_kubernetes_version="$(az aks get-versions --location "$TF_VAR_location" | jq '.orchestrators | reverse | .[0].orchestratorVersion' -r)"
-
-# Be sure to direnv allow each time you replace the cluster
-export TF_VAR_kubernetes_provider_info_encoded="$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab.com/api/v4/groups/$TF_VAR_gitlab_group_id/variables" | jq '.[]? | select(.key == "TF_VAR_kubernetes_provider_info_encoded") | .value' -r)"
-
-# ===========================================
-# Refresh kube-config-admin
-# ===========================================
-echo "Refreshing kube-config-admin..."
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-TEMP_DIR="$SCRIPT_DIR/.temp"
-export KUBE_CONFIG_ADMIN_PATH="$TEMP_DIR/kube-config-admin"
-
-echo "Setting making temp directory..."
-mkdir -p "$TEMP_DIR"
-
-echo "Retrieving kube_config admin content..."
-# export TF_VAR_kubernetes_provider_info_encoded="$(
-KUBE_CONFIG_CONTENT="$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab.com/api/v4/groups/$TF_VAR_gitlab_group_id/variables" | jq '.[]? | select(.key == "KUBE_CONFIG_ADMIN_PATH") | .value' -r)"
-
-echo "KUBE_CONFIG_ADMIN_PATH=$KUBE_CONFIG_ADMIN_PATH"
-
-echo "Saving kube config to disk..."
-echo "$KUBE_CONFIG_CONTENT" > "$KUBE_CONFIG_ADMIN_PATH"
-
-export TF_VAR_azure_subscription="$AZURE_SUBSCRIPTION_ENTERPRISE_1"
-export TF_VAR_cluster_admin_object_ids="$(az ad group list | jq '.[] | select(.displayName == "Global Administrators") | .objectId' -r)"
-export KUBECONFIG="$KUBE_CONFIG_ADMIN_PATH"
