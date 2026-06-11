@@ -11,6 +11,7 @@ resource "gitlab_group_variable" "AZURE_DNS_ZONE_ID_ANDREASEN_DEV" {
   value         = azurerm_dns_zone.andreasen_dev.id
   protected     = false
   masked        = false
+  hidden        = false
 }
 
 resource "azurerm_dns_txt_record" "protonmail_andreasen_dev_verification" {
