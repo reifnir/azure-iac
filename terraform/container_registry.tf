@@ -21,4 +21,5 @@ resource "gitlab_group_variable" "AZURE_CONTAINER_REGISTRY_ID" {
   value         = azurerm_container_registry.reifnir.id
   protected     = false
   masked        = false
+  hidden        = false
 }
