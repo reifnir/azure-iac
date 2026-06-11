@@ -1,20 +1,18 @@
 stages:
-  - preparation
-  - plan foundation
-  - apply foundation
+  - plan
+  - apply
 
-image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+image:
+  name: hashicorp/terraform:latest
+  entrypoint: [""]
 
 variables:
-  TF_PASSWORD: ${GITLAB_TOKEN}
+  TERRAFORM_DIR: ./terraform
+  TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
 
-.plan:
-  script:
-    # TODO: switch to hashicorp/terraform image
-    - cd ${TF_ROOT}
-    - gitlab-terraform init
-    - gitlab-terraform plan
-    - gitlab-terraform plan-json
+plan:
+  stage: plan
+  resource_group: terraform
   artifacts:
     name: plan
     paths:
@@ -22,30 +20,11 @@ variables:
     reports:
       terraform: ${TF_ROOT}/plan.json
 
-.apply:
+apply:
+  stage: apply
+  resource_group: terraform
   script:
-    - cd ${TF_ROOT}
-    - gitlab-terraform init
-    - time gitlab-terraform apply
-  artifacts:
-    name: plan
+    - terraform -chdir=${TF_ROOT} init
+    - terraform -chdir=${TF_ROOT} apply plan.cache
   only:
     - main
-
-plan foundation:
-  extends: .plan
-  stage: plan foundation
-  resource_group: foundation
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/azure/foundation
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-    TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
-
-apply foundation:
-  extends: .apply
-  stage: apply foundation
-  resource_group: foundation
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/azure/foundation
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/azure-foundation
-    TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
