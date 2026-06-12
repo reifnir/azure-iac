@@ -1,3 +1,8 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 stages:
   - plan
   - apply
@@ -9,7 +14,6 @@ image:
 variables:
   TERRAFORM_DIR: ./terraform
   TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
-
 
 # checkov:
 #   stage: plan
