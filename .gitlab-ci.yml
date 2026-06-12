@@ -13,6 +13,7 @@ image:
 
 variables:
   TERRAFORM_DIR: ./terraform
+  GITLAB_TOKEN: $GITLAB_AUTOMATION_TOKEN
   TF_VAR_azure_subscription: $AZURE_SUBSCRIPTION_PRO
 
 # checkov:
