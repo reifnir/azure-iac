@@ -10,11 +10,9 @@ export ARM_CLIENT_SECRET=""
 export ARM_TENANT_ID=""
 export ARM_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_PRO}"
 # =============================================
-
-# Automatically furnished by GitLab
 export CI_API_V4_URL="https://gitlab.com/api/v4"
 export CI_PROJECT_ID="21573466"
-
-# Stored at project level
 export TF_VAR_gitlab_group_id="9705542"
 export TF_VAR_location="eastus"
+export TF_VAR_azure_subscription="${AZURE_SUBSCRIPTION_PRO}"
+export TF_VAR_gitlab_token="${GITLAB_AUTOMATION_TOKEN}"

@@ -4,5 +4,5 @@ provider "azurerm" {
 }
 
 provider "gitlab" {
-  # Instead of setting "token" explicitly, let it load from the GITLAB_TOKEN environment variable
+  token = var.gitlab_token
 }
