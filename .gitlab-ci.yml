@@ -32,6 +32,8 @@ plan:
   stage: plan
   resource_group: terraform
   script:
+    # what the heck is happening here? the token works fine locally, but not from CI, so let's just print the last 3 characters to see if it's being passed as expected
+    - 'echo "${GITLAB_TOKEN: -3}"'
     - terraform -chdir=${TERRAFORM_DIR} init
     - terraform -chdir=${TERRAFORM_DIR} plan -out=planfile
   artifacts:
