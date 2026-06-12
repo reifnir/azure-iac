@@ -11,6 +11,7 @@ resource "gitlab_group_variable" "AZURE_DNS_ZONE_ID_DECOMPOSINGSOFTWARE_COM" {
   value         = azurerm_dns_zone.decomposingsoftware_com.id
   protected     = false
   masked        = false
+  hidden        = false
 }
 
 resource "azurerm_dns_txt_record" "protonmail_decomposingsoftware_com_verification" {

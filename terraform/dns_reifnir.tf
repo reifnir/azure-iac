@@ -35,6 +35,7 @@ resource "gitlab_group_variable" "AZURE_DNS_ZONE_ID_REIFNIR_COM" {
   value         = azurerm_dns_zone.reifnir_com.id
   protected     = false
   masked        = false
+  hidden        = false
 }
 
 resource "azurerm_dns_txt_record" "protonmail_reifnir_com_verification" {
