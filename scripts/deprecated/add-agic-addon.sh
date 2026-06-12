@@ -1,2 +1,0 @@
-# Needed to run this a loooong time ago to enable this preview capability... which we aren't even using
-az feature register --name AKS-IngressApplicationGatewayAddon --namespace Microsoft.ContainerService
